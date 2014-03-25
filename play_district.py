@@ -66,10 +66,9 @@ print df_grade[['Interim Grade', 'District', interim, 'Significance']]
 #ANALYSIS FOR HIGHEST PERFORMING DISTRICT OVER ALL
 df_d = frame.groupby(['District'], as_index = False).mean()
 df_d.fillna(0, inplace = True)
-df_dis = df_d.sort(interim, ascending = False).loc[0, interim]
-second_d = df_d.sort(interim, ascending = False).loc[1, interim]
-Sig_d = df_dis - second_d
-df_d['Significance'] = Sig_d
+df_dis = df_d.sort(interim, ascending = False)
+sig_d = df_dis.loc[1, interim] - df_dis.loc[0, interim]
+df_d['Significance'] = sig_d
 
 print '--------' * 10
 print '\nHighest Performing District Overall:\n'
