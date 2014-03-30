@@ -22,4 +22,3 @@ for files in allFiles:
 #'frame' is the variable to use to access the dataframe of all A3 MA ELA.
 #It's a huge dataframe so par it down as necessary
 print frame
-
