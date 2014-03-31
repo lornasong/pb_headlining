@@ -20,7 +20,11 @@ unique_schools = pd.unique(df['School Name'].values.ravel())
 unique_grades = pd.unique(df['Interim Grade'].values.ravel())
 
 #Read fake output data frames
-high_file = 'High_Performing.csv'
-low_file = 'Low_Performing.csv'
-high = pd.read_csv(high_file)
-low = pd.read_csv(low_file)
+high_pb_file = 'high_pb.csv'
+low_pb_file = 'low_pb.csv'
+high_pure_file = 'high_pure.csv'
+low_pure_file = 'low_pure.csv'
+high_pb = pd.read_csv(high_pb_file)
+low_pb = pd.read_csv(low_pb_file)
+high_pure = pd.read_csv(high_pure_file)
+low_pure = pd.read_csv(low_pure_file)

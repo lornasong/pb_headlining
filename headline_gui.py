@@ -107,26 +107,26 @@ class MainApp(QtGui.QWidget):
 			pass
 		elif pure == 2:
 
-			for i in gui_data.high['school_name']:
+			for i in gui_data.high_pure['school_name']:
 				self.h_school.addItem(i)
-			for i in gui_data.high['percent']:
+			for i in gui_data.high_pure['percent']:
 				self.h_percent.addItem(str(i))
 			
-			for i in gui_data.low['school_name']:
+			for i in gui_data.low_pure['school_name']:
 				self.l_school.addItem(i)
-			for i in gui_data.low['percent']:
+			for i in gui_data.low_pure['percent']:
 				self.l_percent.addItem(str(i))
 			
 		elif pb == 2:
 		
-			for i in gui_data.high['school_name']:
+			for i in gui_data.high_pb['school_name']:
 				self.h_school.addItem(i)
-			for i in gui_data.high['percent']:
+			for i in gui_data.high_pb['percent']:
 				self.h_percent.addItem(str(i))
 			
-			for i in gui_data.low['school_name']:
+			for i in gui_data.low_pb['school_name']:
 				self.l_school.addItem(i)
-			for i in gui_data.low['percent']:
+			for i in gui_data.low_pb['percent']:
 				self.l_percent.addItem(str(i))
 				
 		else:
