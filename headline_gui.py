@@ -54,7 +54,8 @@ class MainApp(QtGui.QWidget):
 			
 		#Set up Grid
 		grid = QtGui.QGridLayout()
-		grid.setColumnMinimumWidth(0, 225)
+		grid.setColumnMinimumWidth(0, 220)
+		grid.setColumnMinimumWidth(3, 210)
 		grid.setSpacing(10)
 		
 		grid.addWidget(school_l, 0, 0)
@@ -81,16 +82,69 @@ class MainApp(QtGui.QWidget):
 		self.resize(550, 550)
 		self.show()
 	
+
 	def run_clicked(self):
+		
 		#Return dataframe of school list and whether chosen or not (0, 2)
 		checked = []
 		for index in xrange(self.schoolWidget.count()):
 			check_box = self.schoolWidget.itemWidget(self.schoolWidget.item(index))
 			state = check_box.checkState()
 			checked.append(state)
-		user = pd.DataFrame(data = gui_data.unique_schools)
-		user.rename(columns = {0: 'schools'}, inplace = True)
-		user['checked'] = checked
+		selection_frame = pd.DataFrame(data = gui_data.unique_schools)
+		selection_frame.rename(columns = {0: 'School Name'}, inplace = True)
+		selection_frame['selection'] = checked
+		
+		df = pd.merge(gui_data.df,selection_frame, on= 'School Name')
+		df = df[df['selection'] == 2]
+
+		#This is the PB part
+		pb_pivot = df.pivot_table('Student ANET ID', rows = ['School Name'], cols = ['Interim 2 Perf Level'], aggfunc=len)
+		pb_pivot = pb_pivot.fillna(0)
+
+		# % Advanced, NI High, NI Low
+		pb_pivot['total population'] = pb_pivot['P']+pb_pivot['W Low']+pb_pivot['W High']+pb_pivot['NI High']+pb_pivot['NI Low']
+		pb_pivot['pb_passing'] = (pb_pivot['P']+pb_pivot['NI Low']+pb_pivot['NI High'])/pb_pivot['total population']
+
+		pb_pivot = pb_pivot.sort_index(by=['pb_passing'], ascending=[False])
+		high_pb = pb_pivot[:5]
+		del high_pb['NI High']
+		del high_pb['NI Low']
+		del high_pb['P']
+		del high_pb['W High']
+		del high_pb['W Low']
+		del high_pb['total population']
+
+		pb_pivot = pb_pivot.sort_index(by=['pb_passing'], ascending=[True])
+		low_pb = pb_pivot[:5]
+		del low_pb['NI High']
+		del low_pb['NI Low']
+		del low_pb['P']
+		del low_pb['W High']
+		del low_pb['W Low']
+		del low_pb['total population']
+
+		#And this is the pure percentage
+		byschool = df.groupby(['School Name'])
+
+		byschoolmean = byschool['Interim 2 % Correct'].agg([np.mean])
+
+		zscore = lambda x:(x - x.mean())/x.std()
+		byschoolmean['zscore'] = byschoolmean.apply(zscore)
+		byschoolmean = byschoolmean.sort_index(by=['zscore'], ascending=[True])
+		low_pure = byschoolmean[:5]
+		del low_pure['zscore']
+
+		byschoolmean = byschoolmean.sort_index(by=['zscore'], ascending=[False])
+		high_pure = byschoolmean[:5]
+		del high_pure['zscore']
+		
+		#Round percentages
+		high_pure['mean'] = 100*np.round(high_pure['mean'], 4)
+		low_pure['mean'] = 100*np.round(low_pure['mean'], 4)
+		
+		high_pb['pb_passing'] = 100*np.round(high_pb['pb_passing'], 4)
+		low_pb['pb_passing'] = 100*np.round(low_pb['pb_passing'], 4)
 		
 		#Clear list box
 		self.h_school.clear()
@@ -107,27 +161,27 @@ class MainApp(QtGui.QWidget):
 			pass
 		elif pure == 2:
 
-			for i in gui_data.high_pure['school_name']:
+			for i in high_pure.index:
 				self.h_school.addItem(i)
-			for i in gui_data.high_pure['percent']:
-				self.h_percent.addItem(str(i))
+			for i in high_pure['mean']:
+				self.h_percent.addItem(str(i) + '%')
 			
-			for i in gui_data.low_pure['school_name']:
+			for i in low_pure.index:
 				self.l_school.addItem(i)
-			for i in gui_data.low_pure['percent']:
-				self.l_percent.addItem(str(i))
+			for i in low_pure['mean']:
+				self.l_percent.addItem(str(i) + '%')
 			
 		elif pb == 2:
 		
-			for i in gui_data.high_pb['school_name']:
+			for i in high_pb.index:
 				self.h_school.addItem(i)
-			for i in gui_data.high_pb['percent']:
-				self.h_percent.addItem(str(i))
+			for i in high_pb['pb_passing']:
+				self.h_percent.addItem(str(i) + '%')
 			
-			for i in gui_data.low_pb['school_name']:
+			for i in low_pb.index:
 				self.l_school.addItem(i)
-			for i in gui_data.low_pb['percent']:
-				self.l_percent.addItem(str(i))
+			for i in low_pb['pb_passing']:
+				self.l_percent.addItem(str(i) + '%')
 				
 		else:
 			pass
